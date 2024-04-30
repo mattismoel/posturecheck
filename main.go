@@ -10,6 +10,8 @@ import (
 //go:embed template
 var tmplFS embed.FS
 
+var CheckCount = 0
+
 func main() {
 	mux := http.NewServeMux()
 
@@ -22,6 +24,7 @@ func main() {
 
 func handleAdd() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		CheckCount++
 		w.Write([]byte("Added one"))
 	}
 }
@@ -34,7 +37,7 @@ func handleIndex() http.HandlerFunc {
 			return
 		}
 
-		err = tmpl.Execute(w, nil)
+		err = tmpl.Execute(w, CheckCount)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
