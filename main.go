@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -15,6 +16,7 @@ func main() {
 
 func handleAdd() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Added one")
 		w.Write([]byte("Added one"))
 	}
 }
