@@ -1,0 +1,7 @@
+<div id="counter">
+  <h1 style="font-size: x-large;">Backpain Count</h1>
+  <span id="count" hx-get="/count" hx-target="#counter" hx-swap="outerHTML" hx-trigger="every 10s">
+    {{ .checkCount }}
+  </span>
+  <span id="message">"{{ .message }}"</span>
+</div>

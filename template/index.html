@@ -5,20 +5,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Posture Check</title>
-  <link href="css/style.css" rel="stylesheet">
+  <link href="/static/style.css" rel="stylesheet">
   <script src="https://unpkg.com/htmx.org@1.9.12"
     integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
     crossorigin="anonymous"></script>
 </head>
 
 <body style="height: 100vh; width: 100vw;">
-  <div
-    style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-items: center; align-items: center;">
-    <h1>Posture Check</h1>
-    <span>Count</span>
-    <span>{{ . }}</span>
-    <span>Message</span>
-  </div>
+  {{ template "navbar" }}
+  <main>
+    {{ template "counter.html" . }}
+  </main>
 </body>
 
 </html>
+
+{{ define "navbar" }}
+<nav id="navbar">
+  <a id="logo" href="/">PostureCheck</a>
+  <ul style="display: flex; gap: 4rem;">
+    <li><a href="/">Home</a></li>
+  </ul>
+</nav>
+{{ end }}
