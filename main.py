@@ -30,8 +30,6 @@ def backpain():
     quit()
 
 
-backpain()
-
 while True:
     t = time.time()
 
