@@ -14,6 +14,8 @@ time_since_overshoot = 0.0
 blink_color = [255,0,0]
 delta = 0.0
 
+isDown = False
+
 s.clear()
 
 def blink(sensehat):
@@ -23,24 +25,30 @@ def blink(sensehat):
             pixels.append(blink_color)
     sensehat.set_pixels(pixels)
 
+
 def backpain():
-    print("backpain")
+    global isDown
+    isDown = True
+
     res = requests.post("http://localhost:8080/add")
     print(res.content)
     blink(s)
-    quit()
 
 
 while True:
     t = time.time()
 
-    rotation = s.get_orientation_degrees()["pitch"]
-    if rotation-270 >= max_angle:
-        time_since_overshoot += delta
+    rotation = s.get_orientation_degrees()["pitch"] - 270
+    if isDown:
+        if rotation <= max_angle:
+            isDown = False
+    else:
+        if rotation >= max_angle and not isDown:
+            time_since_overshoot += delta
 
-    if time_since_overshoot >= time_before_signal:
-        time_since_overshoot = 0.0
-        backpain()
+        if time_since_overshoot >= time_before_signal:
+            time_since_overshoot = 0.0
+            backpain()
 
     delta = time.time() - t
 
