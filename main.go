@@ -14,7 +14,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /add", handleAdd())
-	mux.HandleFunc("POST /", handleIndex())
+	mux.HandleFunc("/", handleIndex())
 
 	log.Println("serving on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
