@@ -6,9 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Posture Check</title>
   <link href="css/style.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.12"
+    integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+    crossorigin="anonymous"></script>
 </head>
 
 <body>
+  <button type="button" hx-post="/add">Add</button>
   Hello
 </body>
 
