@@ -1,5 +1,6 @@
 from sensehat import SenseHat
 import time
+import requests
 
 s = SenseHat()
 
@@ -24,9 +25,12 @@ def blink(sensehat):
 
 def backpain():
     print("backpain")
+    requests.post("http://127.0.0.1:8080/add")
     blink(s)
     quit()
 
+
+backpain()
 
 while True:
     t = time.time()
