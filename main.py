@@ -25,7 +25,8 @@ def blink(sensehat):
 
 def backpain():
     print("backpain")
-    requests.post("http://127.0.0.1:8080/add")
+    res = requests.post("http://localhost:8080/add")
+    print(res)
     blink(s)
     quit()
 
