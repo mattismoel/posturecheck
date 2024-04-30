@@ -1,22 +1,41 @@
 package main
 
 import (
-	"fmt"
+	"embed"
+	"html/template"
 	"log"
 	"net/http"
 )
+
+//go:embed template
+var tmplFS embed.FS
 
 func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /add", handleAdd())
+	mux.HandleFunc("POST /", handleIndex())
+
 	log.Println("serving on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
 func handleAdd() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Added one")
 		w.Write([]byte("Added one"))
+	}
+}
+
+func handleIndex() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFS(tmplFS, "template/index.html")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
