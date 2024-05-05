@@ -58,7 +58,6 @@ func handleIndex() http.HandlerFunc {
 		tmpl, err := template.ParseFS(
 			tmplFS,
 			"template/index.html",
-			"template/counter.html",
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -85,7 +84,7 @@ func handleIndex() http.HandlerFunc {
 func handleGetCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Gennemtjek counter.html for eventuelle syntaksfejl.
-		tmpl, err := template.ParseFS(tmplFS, "template/counter.html")
+		tmpl, err := template.ParseFS(tmplFS, "template/index.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -98,7 +97,7 @@ func handleGetCount() http.HandlerFunc {
 		}
 
 		// Forsøg at skriv respons til request med den definerede data.
-		err = tmpl.Execute(w, data)
+		err = tmpl.ExecuteTemplate(w, "content", data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

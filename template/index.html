@@ -13,9 +13,7 @@
 
 <body style="height: 100vh; width: 100vw;">
   {{ template "navbar" }}
-  <main>
-    {{ template "counter.html" . }}
-  </main>
+  {{ template "content" . }}
 </body>
 
 </html>
@@ -27,4 +25,16 @@
     <li><a href="/">Home</a></li>
   </ul>
 </nav>
+{{ end }}
+
+{{ define "content" }}
+<main id="content">
+  <div id="counter">
+    <h1 style="font-size: x-large;">Backpain Count</h1>
+    <span id="count" hx-get="/count" hx-target="#content" hx-swap="outerHTML" hx-trigger="every 10s">
+      {{ .checkCount }}
+    </span>
+  </div>
+  <span id="message">"{{ .message }}"</span>
+</main>
 {{ end }}
