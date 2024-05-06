@@ -13,7 +13,12 @@
 
 <body style="height: 100vh; width: 100vw;">
   {{ template "navbar" }}
-  {{ template "content" . }}
+  <main>
+    <div id="counter-target">
+      <span style="font-size: x-large; margin-bottom: 1rem;">Press to start PostureCheck</span>
+      <button type="button" hx-get="/count" hx-target="#counter-target">Start</button>
+    </div>
+  </main>
 </body>
 
 </html>
@@ -27,14 +32,12 @@
 </nav>
 {{ end }}
 
-{{ define "content" }}
-<main id="content">
-  <div id="counter">
-    <h1 style="font-size: x-large;">Backpain Count</h1>
-    <span id="count" hx-get="/count" hx-target="#content" hx-swap="outerHTML" hx-trigger="every 10s">
-      {{ .checkCount }}
-    </span>
-  </div>
+{{ define "counter" }}
+<div id="counter">
+  <h1 style="font-size: x-large;">Backpain Count</h1>
+  <span id="count" hx-get="/count" hx-target="#counter-target" hx-swap="innerHTML" hx-trigger="every 10s">
+    {{ .checkCount }}
+  </span>
   <span id="message">"{{ .message }}"</span>
-</main>
+</div>
 {{ end }}

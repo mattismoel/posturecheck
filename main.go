@@ -101,7 +101,7 @@ func handleGetCount() http.HandlerFunc {
 		}
 
 		// Forsøg at skriv respons til request med den definerede data.
-		err = tmpl.ExecuteTemplate(w, "content", data)
+		err = tmpl.ExecuteTemplate(w, "counter", data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -60,6 +60,13 @@ a:focus:active {
   list-style-type: none;
 }
 
+#counter-target {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 #counter {
   display: flex;
   flex-direction: column;
@@ -70,9 +77,20 @@ a:focus:active {
 #count {
   font-size: xx-large;
   margin: 1rem 0;
+  text-align: center;
+  flex: 1;
 }
 
 #message {
   color: var(--accent);
   font-style: italic;
 }
+
+button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+/* #counter { */
+/*   background: var(--background); */
+/* } */
