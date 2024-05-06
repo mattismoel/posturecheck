@@ -64,19 +64,12 @@ func handleIndex() http.HandlerFunc {
 			return
 		}
 
-		var message string // ""
-		if checkCount <= 10 {
-			message = "wow good job today lad"
-		} else if checkCount > 10 {
-			message = "You're looking nasty at age 40..."
-		} else if checkCount > 20 {
-			message = "You're looking nasty at age 20..."
-		}
+		msg := countToMsg(checkCount)
 
 		// Opsætnign af nødvendig data-map til vores startside.
 		data := map[string]any{
 			"checkCount": checkCount,
-			"message":    message,
+			"message":    msg,
 		}
 
 		// Skriv respons til ResponseWriter (w), med ovenstående data.
@@ -99,10 +92,12 @@ func handleGetCount() http.HandlerFunc {
 			return
 		}
 
+		msg := countToMsg(checkCount)
+
 		// Opsætning af nødvendig data for counter.html.
 		data := map[string]any{
 			"checkCount": checkCount,
-			"message":    "Some other message...",
+			"message":    msg,
 		}
 
 		// Forsøg at skriv respons til request med den definerede data.
@@ -112,4 +107,17 @@ func handleGetCount() http.HandlerFunc {
 			return
 		}
 	}
+}
+
+func countToMsg(count int) string {
+	var message string // ""
+	if count <= 10 {
+		message = "wow good job today lad"
+	} else if count > 10 {
+		message = "You're looking nasty at age 40..."
+	} else if count > 20 {
+		message = "You're looking nasty at age 20..."
+	}
+
+	return message
 }
