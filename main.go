@@ -113,9 +113,13 @@ func countToMsg(count int) string {
 	var message string // ""
 	if count <= 10 {
 		message = "wow good job today lad"
-	} else if count > 10 {
+	}
+
+	if count > 10 {
 		message = "You're looking nasty at age 40..."
-	} else if count > 20 {
+	}
+
+	if count > 20 {
 		message = "You're looking nasty at age 20..."
 	}
 
