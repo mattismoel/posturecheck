@@ -46,7 +46,7 @@ func main() {
 // Håndterer registrering af backpains ved POST request.
 func handleAdd() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		checkCount++
+		checkCount += 5
 	}
 }
 
@@ -64,10 +64,19 @@ func handleIndex() http.HandlerFunc {
 			return
 		}
 
+		var message string // ""
+		if checkCount <= 10 {
+			message = "wow good job today lad"
+		} else if checkCount > 10 {
+			message = "You're looking nasty at age 40..."
+		} else if checkCount > 20 {
+			message = "You're looking nasty at age 20..."
+		}
+
 		// Opsætnign af nødvendig data-map til vores startside.
 		data := map[string]any{
 			"checkCount": checkCount,
-			"message":    "Some message...",
+			"message":    message,
 		}
 
 		// Skriv respons til ResponseWriter (w), med ovenstående data.
