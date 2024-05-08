@@ -35,6 +35,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Dan en timer som har 'timeout' ved midnat. Ved midnat nulstilles
+	// 'checkCount'.
 	timer := time.NewTicker(timeTillMidnight())
 	go func() {
 		for range timer.C {
@@ -57,6 +59,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
+// Omdan en ingangs 'count' til en passende besked.
 func countToMsg(count int) string {
 	var message string // ""
 	if count <= 10 {
@@ -74,6 +77,9 @@ func countToMsg(count int) string {
 	return message
 }
 
+// Få den 'count' værdi som er gemt i browserens cookies. Cookien findes i
+// et request 'r'. Hvis cookien ikke findes (det er første gang vi bruger
+// sitet), vil der returneres 0.
 func cookieCount(r *http.Request) (int, error) {
 	c, err := r.Cookie(countCookieName)
 	if err != nil {
@@ -93,6 +99,8 @@ func cookieCount(r *http.Request) (int, error) {
 	return count, nil
 }
 
+// Skriv en cookie til browseren med en indgangs 'count' værdi. Denne benyttes
+// til at websitet ikke starter fra count nul, hvis serveren går ned.
 func setCookieCount(w http.ResponseWriter, count int) {
 	c := &http.Cookie{
 		Name:     countCookieName,
@@ -106,14 +114,13 @@ func setCookieCount(w http.ResponseWriter, count int) {
 	http.SetCookie(w, c)
 }
 
+// Returnerer mængden af tid der er til midnat.
 func timeTillMidnight() time.Duration {
 	loc, err := time.LoadLocation("Europe/Copenhagen")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Bestem mængde af tid til midnat, og lav en timer (ticker), som ved 00:00
-	// nulstiller 'checkCount'.
 	now := time.Now()
 	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
 	duration := midnight.Sub(now)
