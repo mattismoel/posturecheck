@@ -38,21 +38,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	loc, err := time.LoadLocation("Europe/Copenhagen")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Bestem mængde af tid til midnat, og lav en timer (ticker), som ved 00:00
-	// nulstiller 'checkCount'.
-	now := time.Now()
-	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
-	duration := midnight.Sub(now)
-	timer := time.NewTicker(duration)
-
+	timer := time.NewTicker(timeTillMidnight())
 	go func() {
-		<-timer.C
-		checkCount = 0
+		for range timer.C {
+			checkCount = 0
+			timer.Reset(timeTillMidnight())
+		}
 	}()
 
 	// Statiske filer håndteres på 'localhost:PORT/static/...'
@@ -192,4 +183,18 @@ func setCookieCount(w http.ResponseWriter, count int) {
 	}
 
 	http.SetCookie(w, c)
+}
+
+func timeTillMidnight() time.Duration {
+	loc, err := time.LoadLocation("Europe/Copenhagen")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Bestem mængde af tid til midnat, og lav en timer (ticker), som ved 00:00
+	// nulstiller 'checkCount'.
+	now := time.Now()
+	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
+	duration := midnight.Sub(now)
+	return duration
 }
