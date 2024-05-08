@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"embed"
 	_ "github.com/mattn/go-sqlite3"
 	"html/template"
@@ -24,30 +23,7 @@ var staticFS embed.FS
 // Antal gange at en "backpain" er registreret siden server start.
 var checkCount = 0
 
-var db *sql.DB
-
 func main() {
-	db, err := sql.Open("sqlite3", "database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = db.Exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id            INTGER     PRIMARY KEY,
-    username      TEXT      NOT NULL,
-    check_count   INTEGER   NOT NULL DEFAULT 0
-  )`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	query := `SELECT check_count FROM users WHERE username = ?`
-	err = db.QueryRow(query, "test_user").Scan(&checkCount)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	mux := http.NewServeMux()
 
 	// Gør statiske filer tilgængelige på "localhost:8080/static/...".
@@ -61,6 +37,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Bestem mængde af tid til midnat, og lav en timer (ticker), som ved 00:00
+	// nulstiller 'checkCount'.
 	now := time.Now()
 	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
 	duration := midnight.Sub(now)
@@ -71,6 +49,7 @@ func main() {
 		checkCount = 0
 	}()
 
+	// Statiske filer håndteres på 'localhost:PORT/static/...'
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
 	// Registrering af stier på webserveren.
@@ -87,17 +66,7 @@ func main() {
 // Håndterer registrering af backpains ved POST request.
 func handleAdd() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		checkCount += 1
-		query := `
-    UPDATE users
-      SET check_count = ?
-    WHERE username = ?`
-
-		_, err := db.Exec(query, checkCount, "test_user")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		checkCount++
 	}
 }
 
