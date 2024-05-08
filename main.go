@@ -2,12 +2,16 @@ package main
 
 import (
 	"embed"
-	_ "github.com/mattn/go-sqlite3"
+	"errors"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Embedding af templates: HTML-filer i "template"-mappen.
@@ -22,6 +26,8 @@ var staticFS embed.FS
 
 // Antal gange at en "backpain" er registreret siden server start.
 var checkCount = 0
+
+var countCookieName = "check-count"
 
 func main() {
 	mux := http.NewServeMux()
@@ -73,6 +79,14 @@ func handleAdd() http.HandlerFunc {
 // Håndterer rendering af startsiden.
 func handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		cookieCount, err := cookieCount(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		checkCount = cookieCount
+
 		// Gennemtjek nødvendige filer.
 		// Hvis der er syntaksfejl eller lignende, skriver vi fejl til browseren.
 		tmpl, err := template.ParseFS(
@@ -105,6 +119,8 @@ func handleIndex() http.HandlerFunc {
 // Håndtering af GET request af ny counter.
 func handleGetCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		setCookieCount(w, checkCount)
+
 		// Gennemtjek counter.html for eventuelle syntaksfejl.
 		tmpl, err := template.ParseFS(tmplFS, "template/index.html")
 		if err != nil {
@@ -144,4 +160,36 @@ func countToMsg(count int) string {
 	}
 
 	return message
+}
+
+func cookieCount(r *http.Request) (int, error) {
+	c, err := r.Cookie(countCookieName)
+	if err != nil {
+		switch {
+		case errors.Is(err, http.ErrNoCookie):
+			return 0, nil
+		default:
+			return -1, fmt.Errorf("could not get cookie: %v", err)
+		}
+	}
+
+	count, err := strconv.Atoi(c.Value)
+	if err != nil {
+		return -1, fmt.Errorf("could not convert cookie count to int: %v", err)
+	}
+
+	return count, nil
+}
+
+func setCookieCount(w http.ResponseWriter, count int) {
+	c := &http.Cookie{
+		Name:     countCookieName,
+		Value:    strconv.Itoa(count),
+		Path:     "/",
+		Expires:  time.Now().Add(24 * 365 * 10 * time.Hour),
+		HttpOnly: false,
+		Secure:   false,
+	}
+
+	http.SetCookie(w, c)
 }
