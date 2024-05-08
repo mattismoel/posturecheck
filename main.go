@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"time"
 )
 
 // Embedding af templates: HTML-filer i "template"-mappen.
@@ -29,6 +30,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	loc, err := time.LoadLocation("Europe/Copenhagen")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	now := time.Now()
+	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
+	duration := midnight.Sub(now)
+	timer := time.NewTicker(duration)
+
+	go func() {
+		<-timer.C
+		checkCount = 0
+	}()
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
