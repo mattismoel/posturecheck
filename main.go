@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"embed"
+	_ "github.com/mattn/go-sqlite3"
 	"html/template"
 	"io/fs"
 	"log"
@@ -22,7 +24,30 @@ var staticFS embed.FS
 // Antal gange at en "backpain" er registreret siden server start.
 var checkCount = 0
 
+var db *sql.DB
+
 func main() {
+	db, err := sql.Open("sqlite3", "database.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id            INTGER     PRIMARY KEY,
+    username      TEXT      NOT NULL,
+    check_count   INTEGER   NOT NULL DEFAULT 0
+  )`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	query := `SELECT check_count FROM users WHERE username = ?`
+	err = db.QueryRow(query, "test_user").Scan(&checkCount)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 
 	// Gør statiske filer tilgængelige på "localhost:8080/static/...".
@@ -62,7 +87,17 @@ func main() {
 // Håndterer registrering af backpains ved POST request.
 func handleAdd() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		checkCount += 5
+		checkCount += 1
+		query := `
+    UPDATE users
+      SET check_count = ?
+    WHERE username = ?`
+
+		_, err := db.Exec(query, checkCount, "test_user")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
