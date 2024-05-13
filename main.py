@@ -8,15 +8,16 @@ LED_MATRIX_SIZE = 8
 # Farven som sense hat blinker, når backpain registreres.
 BLINK_COLOR = [255,0,0]
 
-# sense hat's rotation. benytter sig udelukkende af dens 'pitch' del.
-rotation = 0.0
-
 # Den maksimale vinkel, før at et backpain kan registereres.
-max_angle = 30.0
+MAX_ANGLE = 30.0
 
 # Mængde af tid, at brugeren skal være over 'max_angle' før at et backpain
 # registreres.
-registration_duration = 5.0
+REGISTRATION_DURATION = 5.0
+
+# sense hat's rotation. benytter sig udelukkende af dens 'pitch' del.
+rotation = 0.0
+
 
 # Mængde af tid siden brugeren overskred 'max_angle'. Denne nulstilles når
 # brugeren igen er i ordenlig holdning.
@@ -58,7 +59,7 @@ while True:
     # Hvis brugeren har dårlig holdning, men retter sig op, sidder er brugeren
     # ikke længere nede.
     if is_user_down:
-        if rotation <= max_angle:
+        if rotation <= MAX_ANGLE:
             is_user_down = False
 
     # Hvis brugeren ikke er nede, og brugeren overskrider den maksimale vinkel
@@ -66,10 +67,10 @@ while True:
     # 'time_since_overshoot' overskrider vores 'registration_duration',
     # registrerer vi backpain.
     else:
-        if rotation >= max_angle:
+        if rotation >= MAX_ANGLE:
             time_since_overshoot += delta
 
-        if time_since_overshoot >= registration_duration:
+        if time_since_overshoot >= REGISTRATION_DURATION:
             time_since_overshoot = 0.0
             is_user_down = True
             backpain()
