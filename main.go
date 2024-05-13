@@ -24,8 +24,6 @@ var staticFS embed.FS
 // Antal gange at en "backpain" er registreret siden server start.
 var checkCount = 0
 
-var countCookieName = "check-count"
-
 func main() {
 	mux := http.NewServeMux()
 
@@ -35,15 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Dan en timer som har 'timeout' ved midnat. Ved midnat nulstilles
-	// 'checkCount'.
-	timer := time.NewTicker(timeTillMidnight())
-	go func() {
-		for range timer.C {
-			checkCount = 0
-			timer.Reset(timeTillMidnight())
-		}
-	}()
+	beginHandleMidnightReset()
 
 	// Statiske filer håndteres på 'localhost:PORT/static/...'
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
@@ -81,7 +71,7 @@ func countToMsg(count int) string {
 // et request 'r'. Hvis cookien ikke findes (det er første gang vi bruger
 // sitet), vil der returneres 0.
 func cookieCount(r *http.Request) (int, error) {
-	c, err := r.Cookie(countCookieName)
+	c, err := r.Cookie("check-count")
 	if err != nil {
 		switch {
 		case errors.Is(err, http.ErrNoCookie):
@@ -103,7 +93,7 @@ func cookieCount(r *http.Request) (int, error) {
 // til at websitet ikke starter fra count nul, hvis serveren går ned.
 func setCookieCount(w http.ResponseWriter, count int) {
 	c := &http.Cookie{
-		Name:     countCookieName,
+		Name:     "check-count",
 		Value:    strconv.Itoa(count),
 		Path:     "/",
 		Expires:  time.Now().Add(24 * 365 * 10 * time.Hour),
@@ -125,4 +115,16 @@ func timeTillMidnight() time.Duration {
 	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
 	duration := midnight.Sub(now)
 	return duration
+}
+
+func beginHandleMidnightReset() {
+	// Danner en timer som har 'timeout' ved midnat. Ved midnat nulstilles
+	// 'checkCount'.
+	timer := time.NewTicker(timeTillMidnight())
+	go func() {
+		for range timer.C {
+			checkCount = 0
+			timer.Reset(timeTillMidnight())
+		}
+	}()
 }
